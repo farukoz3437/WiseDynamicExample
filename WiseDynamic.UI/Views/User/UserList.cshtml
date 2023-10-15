@@ -1,0 +1,297 @@
+﻿@model List<DtoLayer.Dtos.UserDtos.UserDto>
+@{
+    ViewData["Title"] = "UserList";
+}
+
+
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-warning" id="btnAddUser" data-toggle="modal" data-target="#modal-userAdd">
+                        <i class="fas fa-plus"></i>&nbsp;&nbsp;Kullanıcı Ekle
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-list"></i>&nbsp;&nbsp;Kullanıcı Listesi</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="example2" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Kullanıcı Adı</th>
+                                    <th>Ad</th>
+                                    <th>Soyad</th>
+                                    <th>Cinsiyet</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model)
+                                {
+                                    <tr data-toggle="modal" data-target="#modal-userAdd" style="cursor:pointer" class="currentUser" UserId="@user.Id">
+                                        <td>@user.UserName</td>
+                                        <td>@user.Name</td>
+                                        <td>@user.Surname</td>
+                                        @if (user.Gender == 0)
+                                        {
+                                            <td>Erkek</td>
+                                        }
+                                        else
+                                        {
+                                            <td>Kadın</td>
+                                        }
+
+                                    </tr>
+                                }
+
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Kullanıcı Adı</th>
+                                    <th>Ad</th>
+                                    <th>Soyad</th>
+                                    <th>Cinsiyet</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- /.card -->
+</div>
+<div class="modal fade" id="modal-userAdd">
+    <form asp-controller="User" asp-action="AddUpdateUser" method="post" id="userAddForm">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Kullanıcı Ekle/Düzenle</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="text" name="UserName" class="form-control" placeholder="Kullanıcı Adı">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="Name" class="form-control" placeholder="Ad">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="Surname" class="form-control" placeholder="Soyad">
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control select2" name="Gender" style="width: 100%;">
+                            <option value="" selected="selected">Cinsiyet Seçiniz</option>
+                            <option value="0">Erkek</option>
+                            <option value="1">Kadın</option>
+                        </select>
+                    </div>
+
+                    <div class="card card-outline">
+                        <div class="card-body d-flex justify-content-center">
+                            <img src="/assets/dist/img/defaultuser.png" width="200" height="150" id="image" />
+                        </div>
+                        <div class="card-footer d-flex justify-content-end">
+                            <button type="button" id="btnUploadPhoto" class="btn btn-outline-dark btn-sm mr-2">
+                                <i class="fas fa-upload"></i>&nbsp;&nbsp;Fotoğraf Yükle
+                            </button>
+                            <button type="button" class="btn btn-outline-dark btn-sm" data-toggle="modal" data-target="#modal-takePhoto">
+                                <i class="fas fa-camera-retro"></i>&nbsp;&nbsp;Kamera
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="Id" />
+                    <input type="hidden" name="Photo" value="" />
+                    <input type='file' style="display:none" id="uploadFile" />
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+                    <button type="button" id="userAdd" class="btn btn-primary"><i class="fas fa-save"></i>&nbsp;&nbsp;Kaydet</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+    </form>
+
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="modal-takePhoto">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Kamera</h4>
+            </div>
+            <div class="modal-body">
+                <video id="video" width="480" height="240" autoplay></video>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-outline-dark btn-sm" data-dismiss="modal"><i class="fas fa-times"></i></button>
+                <button type="button" id="capture" class="btn btn-outline-dark btn-sm" data-dismiss="modal"><i class="fas fa-photo-video"></i>&nbsp;&nbsp;Çek</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+@section Scripts
+    {
+    <script>
+        $(function () {
+            $('#example2').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json',
+                },
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+
+            });
+            $("#btnUploadPhoto").on("click", function () {
+                $("#uploadFile").click();
+            })
+
+            //video
+
+            var video = document.getElementById('video');
+            var image = document.getElementById('image');
+            var canvas = document.createElement('canvas');
+            var context = canvas.getContext('2d');
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function (err) {
+                    console.log(err);
+                });
+            $("#capture").on("click", function () {
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                var imageData = canvas.toDataURL();
+                image.src = imageData;
+                $("[name='Photo']").val(canvas.toDataURL());
+            })
+
+            $("#uploadFile").on("change", function () {
+                if (this.files && this.files[0]) {
+                    var img = document.getElementById('image');
+                    img.onload = () => {
+                        URL.revokeObjectURL(img.src);
+                    }
+                    img.src = URL.createObjectURL(this.files[0]);
+
+                    getBase64FromUrl($("#image").attr("src"));
+                }
+            });
+            //--video
+
+
+
+
+            if ('@TempData["message"]' != undefined && '@TempData["message"]' != "") {
+                var msg = '@Html.Raw((string)TempData["message"])';
+                if (msg != null) {
+                    var arr = msg.split('|');
+                    console.log("arr1",arr[1]);
+                    if (arr[1] == "True") {
+                        toastr.success(arr[0]);
+                    } else {
+                        toastr.error(arr[0]);
+                    }
+
+                }
+            }
+
+            $("#userAdd").on("click", function () {
+                var isValid = FormValidation();
+                if (isValid) {
+                    $("#userAddForm").submit();
+                }
+            });
+            $("#btnAddUser").on("click", function () {
+                var form = document.getElementById('userAddForm');
+                $("#image").attr("src", "/assets/dist/img/defaultuser.png");
+                $("[name='Photo']").val("");
+                form.reset();
+            })
+
+            $(document).delegate('.currentUser', 'click', function () {
+                var id = $(this).attr("UserId");
+                $.ajax({
+                    url: "/User/GetById?id=" + id,
+                    dataType: 'JSON',
+                    type: "GET",
+                    success: function (response) {
+                        console.log(response);
+                        $("[name='UserName']").val(response.userName);
+                        $("[name='Name']").val(response.name);
+                        $("[name='Surname']").val(response.surname);
+                        $("[name='Id']").val(response.id);
+                        $("[name='Gender']").val(response.gender).change();
+                        $("#image").attr("src", "/assets/dist/img/" + response.photo);
+                        getBase64FromUrl("/assets/dist/img/" + response.photo);
+                    }
+                });
+            });
+        });
+
+        const getBase64FromUrl = async (url) => {
+            const data = await fetch(url);
+            const blob = await data.blob();
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = () => {
+                    const base64data = reader.result;
+                    resolve(base64data);
+                    $("[name='Photo']").val(base64data);
+                }
+            });
+
+        }
+        function FormValidation() {
+            var isValid = true;
+            if ($('[name="UserName"]').val() == "") {
+                toastr.warning("Kullanıcı adını giriniz.");
+                isValid = false;
+            }
+            if ($('[name="Name"]').val() == "") {
+                toastr.warning("Adı giriniz.");
+                isValid = false;
+            }
+            if ($('[name="Surname"]').val() == "") {
+                toastr.warning("Soyadı giriniz.");
+                isValid = false;
+            }
+            if ($('[name="Gender"]').val() == "") {
+                toastr.warning("Cinsiyet seçiniz.");
+                isValid = false;
+            }
+            if ($('[name="Photo"]').val() == "") {
+                toastr.warning("Fotoğraf yükleyiniz.");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+    </script>
+}
+
+
